@@ -24,6 +24,8 @@ on run argv
     close window 1 saving no
     -- quit
   end tell 
+
+  return "saved output in " & (first item of argv) & ".mov"
 end run
 
 -- Local Variables:
