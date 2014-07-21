@@ -14,9 +14,17 @@ readVTK[file_String, label_String, type_String] :=
     Module[{str, n, data}, 
            str = OpenRead[file, BinaryFormat -> True];
 
-           (*Read the time -- this is ugly*)
-           t = Read[StringToStream[Last[StringSplit[First[StringSplit[Find[str, "time"], ","]], " "]]],
-                    Number];
+           (* Read the time *)
+           t = Block[{headerline, timestring},
+                     (* eg "PRIMITIVE vars at time= 2.000000e+01, level= 0, domain= 0" *)
+                     headerline = Find[str, "time"];
+
+                     (* eg "2.000000e+01" *)
+                     timestring = First[StringCases[headerline, 
+                                                    RegularExpression["time=\\s*([0-9e\\.+\\-]+)"] -> "$1"]];
+
+                     (* convert from string to number *)
+                     Read[StringToStream[timestring], Number]];
 
            (*Read the header*)
            dim = Map[If[# > 1, # - 1, #] &, 
